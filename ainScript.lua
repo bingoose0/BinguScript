@@ -1,5 +1,5 @@
 util.keep_running()
-util.require_natives(1651208000)
+util.require_natives(1640181023)
 
 -- Config
 local dropVehicHash = 444583674  --- The vehicle hash for dropveh
@@ -7,6 +7,16 @@ local pedAttaccHash = 0x5B44892C --- The ped that will attack with "attacc"
 local weaponAttaccHash = -1357824103 --- The weapon the ped will use when attaccing
 local rainVehicleHash = -2007026063
 local rainVehicleRadius = 60
+
+local burgerAttack = 0x8CDCC057
+local burgerAttackVan = util.joaat("stalion2")
+local burgerAttackWeapon = -1063057011
+
+local cargobobWeapon = -1063057011
+local cargobobPed = 0x81441B71
+
+local busPed = 0x94C2A03F
+local busWeapon = -1063057011
 
 -- Config end
 
@@ -64,6 +74,72 @@ local function playerFunctions(pid)
         util.toast("Charge! >:)")
     end)
     
+    menu.action(pRoot, "Burger Attack", {"battack", "burgattack", "batt"}, "makes some burger ppl attack a player", function ()
+        loadModel(burgerAttackVan)
+        loadModel(burgerAttack)
+        local playerPed = PLAYER.GET_PLAYER_PED(pid)
+        local vehicleCoords = getRandomSpawnPos(playerPed, 20)
+        local vehicle = entities.create_vehicle(burgerAttackVan, vehicleCoords, 0)
+        VEHICLE.MODIFY_VEHICLE_TOP_SPEED(vehicle, 100)
+        ENTITY.SET_ENTITY_PROOFS(vehicle, true, true, false, true, true)
+
+        for i = -1, VEHICLE.GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(vehicle) - 1 do -- -1 because for some stupid reason -1 is the driver seat, and subtract 1 because of -1 lol
+            local ped = entities.create_ped(1, burgerAttack, vehicleCoords, 0)
+            PED.SET_PED_INTO_VEHICLE(ped, vehicle, i)
+            PED.SET_PED_AS_COP(ped, true)
+            WEAPON.GIVE_WEAPON_TO_PED(ped, burgerAttackWeapon, 500)
+            if i ~= -1 then
+                TASK.TASK_COMBAT_PED(ped, playerPed)
+            else
+                TASK.TASK_VEHICLE_CHASE(ped, playerPed)
+            end
+        end
+    end)
+
+    menu.action(pRoot, "Cargobob Attack", {"cargobobattack", "cattack", "catt"}, "makes people in a cargobob attack a player", function ()
+        local cargobobHash = util.joaat("cargobob")
+        loadModel(cargobobHash)
+        loadModel(cargobobPed)
+        local playerPed = PLAYER.GET_PLAYER_PED(pid)
+        local vehicleCoords = getRandomSpawnPos(playerPed, 20)
+        local vehicle = entities.create_vehicle(cargobobHash, vehicleCoords, 0)
+        ENTITY.SET_ENTITY_PROOFS(vehicle, true, true, false, true, true)
+        VEHICLE.MODIFY_VEHICLE_TOP_SPEED(vehicle, 500)
+        for i = -1, VEHICLE.GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(vehicle) - 1 do -- -1 because for some stupid reason -1 is the driver seat, and subtract 1 because of -1 lol
+            local ped = entities.create_ped(1, cargobobPed, vehicleCoords, 0)
+            PED.SET_PED_INTO_VEHICLE(ped, vehicle, i)
+            PED.SET_PED_AS_COP(ped, true)
+            WEAPON.GIVE_WEAPON_TO_PED(ped, cargobobWeapon, 500)
+            if i ~= -1 then
+                TASK.TASK_COMBAT_PED(ped, playerPed)
+            else
+                TASK.TASK_VEHICLE_CHASE(ped, playerPed)
+            end
+        end
+    end)
+
+
+    menu.action(pRoot, "Bus Attack", {"busattack", "buattack", "buatt"}, "makes people in a bus attack a player", function ()
+        local busHash = util.joaat("bus")
+        loadModel(busHash)
+        loadModel(busPed)
+        local playerPed = PLAYER.GET_PLAYER_PED(pid)
+        local vehicleCoords = getRandomSpawnPos(playerPed, 20)
+        local vehicle = entities.create_vehicle(busHash, vehicleCoords, 0)
+        ENTITY.SET_ENTITY_PROOFS(vehicle, true, true, false, true, true)
+        VEHICLE.MODIFY_VEHICLE_TOP_SPEED(vehicle, 100)
+        for i = -1, VEHICLE.GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(vehicle) - 1 do -- -1 because for some stupid reason -1 is the driver seat, and subtract 1 because of -1 lol
+            local ped = entities.create_ped(1, busPed, vehicleCoords, 0)
+            PED.SET_PED_INTO_VEHICLE(ped, vehicle, i)
+            PED.SET_PED_AS_COP(ped, true)
+            WEAPON.GIVE_WEAPON_TO_PED(ped, busWeapon, 500)
+            if i ~= -1 then
+                TASK.TASK_COMBAT_PED(ped, playerPed)
+            else
+                TASK.TASK_VEHICLE_CHASE(ped, playerPed)
+            end
+        end
+    end)
 end
 
 players.on_join(function (pid)
@@ -87,9 +163,15 @@ menu.toggle(root, "Riot", {"riot", "npcfight"}, "Makes all nearby NPCs duel", fu
     MISC.SET_RIOT_MODE_ENABLED(toggle) -- how tf is this actually a thing lmao, thanks NativeDB
 end)
 
-menu.text_input(root, "Rain Vehicle", {"rainvehicle", "rvhc"}, "the rain vehicle", function(value)
+menu.text_input(root, "Vehicle for Rain Vehicle", {"rainvehicle", "rvhc"}, "the rain vehicle", function(value)
     rainVehicleHash = util.joaat(value)
 end, "handler")
+
+menu.text_input(root, "Vehicle for Drop Vehicle", {"dropvehicleset"}, "the vehicle to use for dropveh", function (value)
+    dropVehicHash = util.joaat(value)
+    
+end, "handler")
+
 util.create_thread(function() -- Ped stuffz
     local peds = nil
     while true do
