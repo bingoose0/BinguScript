@@ -7,15 +7,7 @@ local root = menu.my_root()
 local joaat = util.joaat
 local wait = util.yield
 
-LANG = {
-    ["en-us"] = {
-        ["started_up"] = "Hello from " .. name .. "!";
-    }
-}
-
-local langEnglish = LANG['en-us']
-
-util.toast(langEnglish['started_up'])
+util.toast("Hello from " .. name .. "!")
 
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 --            Utility functions            -- 
@@ -40,6 +32,7 @@ local function loadModel(hash)
         util.toast("Couldn't load model " .. hash .. ", please try again or report this.")
     end
 end
+
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 --          Player-related stuff           -- 
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -120,4 +113,17 @@ end
 
 players.on_join(function (pid)
     playerActions(pid)
+end)
+
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+--           GUI-related things            -- 
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+local pedAttackList = menu.list(root, "Ped Attacks", {"pedattacks"}, "Ped attacks, used to attack a player")
+
+menu.action(pedAttackList, "Bus Attack", {}, "Attacks people with a bus", function ()
+    menu.show_command_box("buatt ")
+end)
+
+menu.action(pedAttackList, "Burger Shot Shooting", {}, "Attacks a player with ppl in burger shot", function ()
+    menu.show_command_box("bsat ")
 end)
