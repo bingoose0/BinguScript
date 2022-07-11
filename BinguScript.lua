@@ -53,12 +53,12 @@ local function handlePlayer(playerId)
         local veh = entities.create_vehicle(busHash, busPos, 0)
 
         for i = -1, VEHICLE.GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(veh) - 1 do
-            local ped = PED.CREATE_RANDOM_PED(busPos.x, busPos.y, busPos.z)
+            local ped = PED.CREATE_RANDOM_PED(busPos['x'], busPos['y'], busPos['z'])
 
             PED.SET_PED_AS_COP(ped, true)
             WEAPON.GIVE_WEAPON_TO_PED(ped, -1121678507)
 
-            TASK.TASK_WARP_PED_INTO_VEHICLE(ped, vehicle, i)
+            TASK.TASK_WARP_PED_INTO_VEHICLE(ped, veh, i)
 
             if i == -1 then
                 TASK.TASK_VEHICLE_CHASE(ped, pPed)
